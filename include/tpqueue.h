@@ -2,14 +2,27 @@
 #ifndef INCLUDE_TPQUEUE_H_
 #define INCLUDE_TPQUEUE_H_
 
-template<typename T>
-class TPQueue {
-  // реализация шаблона очереди с приоритетом на связанном списке
-};
-
 struct SYM {
   char ch;
   int prior;
 };
 
-#endif  // INCLUDE_TPQUEUE_H_
+template<typename T>
+class TPQueue {
+ private:
+  struct Node {
+    T data;
+    Node* next;
+  };
+
+  Node* head;
+
+ public:
+  TPQueue();
+  ~TPQueue();
+  void push(const T& value);
+  T pop();
+  bool isEmpty() const;
+};
+
+#endif  
