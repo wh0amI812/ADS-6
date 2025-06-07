@@ -1,60 +1,62 @@
 // Copyright 2022 NNTU-CS
-// Copyright 2022 NNTU-CS
 #ifndef INCLUDE_TPQUEUE_H_
 #define INCLUDE_TPQUEUE_H_
 #include <stdexcept>
+
 template<typename T>
 class TPQueue {
  private:
-  struct Node {
-    T data;
-    Node* next;
-    explicit Node(const T& value) : data(value), next(nullptr) { }
+  struct Item {
+    T element;
+    Item* following;
+    explicit Item(const T& value) : element(value), following(nullptr) {}
   };
-  Node* head;
+  Item* front;
 
  public:
-  TPQueue() : head(nullptr) {}
+  TPQueue() : front(nullptr) {}
   ~TPQueue() {
-    while (head != nullptr) {
-      Node* temp = head;
-      head = head->next;
-      delete temp;
+    while (front != nullptr) {
+      Item* tmp = front;
+      front = front->following;
+      delete tmp;
     }
   }
   void push(const T& value) {
-    Node* newNode = new Node(value);
-    if (head == nullptr || value.prior > head->data.prior) {
-      newNode->next = head;
-      head = newNode;
+    Item* newItem = new Item(value);
+    if (front == nullptr || value.prior > front->element.prior) {
+      newItem->following = front;
+      front = newItem;
       return;
     }
-    Node* current = head;
-    while (current->next != nullptr
-      && current->next->data.prior >= value.prior) {
-      current = current->next;
+    Item* current = front;
+    while (current->following != nullptr
+           && current->following->element.prior >= value.prior) {
+      current = current->following;
     }
-    newNode->next = current->next;
-    current->next = newNode;
+    newItem->following = current->following;
+    current->following = newItem;
   }
   T pop() {
-    if (head == nullptr) {
+    if (front == nullptr) {
       throw std::runtime_error("Queue is empty");
     }
-    Node* temp = head;
-    T value = head->data;
-    head = head->next;
-    delete temp;
+    Item* tmp = front;
+    T value = front->element;
+    front = front->following;
+    delete tmp;
     return value;
   }
   bool empty() const {
-    return head == nullptr;
+    return front == nullptr;
   }
   TPQueue(const TPQueue&) = delete;
   TPQueue& operator=(const TPQueue&) = delete;
 };
-struct SYM {
-  char ch;
-  int prior;
+
+struct Symbol {
+  char character;
+  int priority;
 };
+
 #endif  // INCLUDE_TPQUEUE_H_
