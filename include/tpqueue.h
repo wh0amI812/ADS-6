@@ -2,61 +2,59 @@
 #ifndef INCLUDE_TPQUEUE_H_
 #define INCLUDE_TPQUEUE_H_
 #include <stdexcept>
-
 template<typename T>
 class TPQueue {
  private:
-  struct Item {
-    T element;
-    Item* following;
-    explicit Item(const T& value) : element(value), following(nullptr) {}
-  };
-  Item* front;
+    struct Knot {
+        T data;
+        Knot* next;
+        explicit Knot(const T& d) : data(d), next(nullptr) {}
+    };
+    Knot* head;
 
  public:
-  TPQueue() : front(nullptr) {}
-  ~TPQueue() {
-    while (front != nullptr) {
-      Item* tmp = front;
-      front = front->following;
-      delete tmp;
+    TPQueue() : head(nullptr) {}
+    ~TPQueue() {
+        while (head) {
+            Knot* tmp = head;
+            head = head->next;
+            delete tmp;
+        }
     }
-  }
-  void push(const T& value) {
-    Item* newItem = new Item(value);
-    if (front == nullptr || value.prior > front->element.prior) {
-      newItem->following = front;
-      front = newItem;
-      return;
+    void push(const T& item) {
+        Knot* newKnot = new Knot(item);
+        if (!head || head->data.prior < item.prior) {
+            newKnot->next = head;
+            head = newKnot;
+            return;
+        }
+        Knot* current = head;
+        while (current->next && current->next->data.prior >= item.prior) {
+            current = current->next;
+        }
+        newKnot->next = current->next;
+        current->next = newKnot;
     }
-    Item* current = front;
-    while (current->following != nullptr
-           && current->following->element.prior >= value.prior) {
-      current = current->following;
+
+    T pop() {
+        if (!head) {
+            throw std::runtime_error("Queue is empty");
+        }
+        Knot* tmp = head;
+        T result = head->data;
+        head = head->next;
+        delete tmp;
+        return result;
     }
-    newItem->following = current->following;
-    current->following = newItem;
-  }
-  T pop() {
-    if (front == nullptr) {
-      throw std::runtime_error("Queue is empty");
+
+    bool isEmpty() const {
+        return head == nullptr;
     }
-    Item* tmp = front;
-    T value = front->element;
-    front = front->following;
-    delete tmp;
-    return value;
-  }
-  bool empty() const {
-    return front == nullptr;
-  }
-  TPQueue(const TPQueue&) = delete;
-  TPQueue& operator=(const TPQueue&) = delete;
 };
 
-struct Symbol {
-  char character;
-  int priority;
+struct SYM {
+  char ch;
+  int prior;
 };
 
 #endif  // INCLUDE_TPQUEUE_H_
